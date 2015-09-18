@@ -63,17 +63,10 @@ namespace Fixie.Tests.Execution
             //     also not acceptable for AppDomain communication because they can cause
             //     assembly load failures at runtime.
 
-            if (type == typeof(IExecutionSink))
-            {
-                //Tests use this routine to vet IExecutionSink as a safe remoting *interface*,
-                //but it is also used as an *argument* on other remoting interfaces.
-                //Because it is the responsibility of the IExecutionSink implementation to be
-                //a valid MarshalByRefObject, there is nothing left to check for here,
-                //so it is assumed to be valid.
-                return true;
-            }
-
             visitedTypes.Add(type);
+
+            if (type == typeof(object[]))
+                return true;//This is hard to justify, but protected in the same way as IExecutionSink
 
             if (type == typeof(object))
                 return false;

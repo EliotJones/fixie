@@ -29,38 +29,60 @@ namespace Fixie.Execution
                 return executionProxy.DiscoverTestMethodGroups(assemblyFullPath, options);
         }
 
-        public AssemblyResult RunAssembly<TListenerFactory>(Options options, IExecutionSink executionSink) where TListenerFactory : IListenerFactory
+        public void LoadAssemblyContaining<T>()
         {
-            AssertIsLongLivedMarshalByRefObject(executionSink);
+            var listenerFactoryAssemblyFullPath = typeof(T).Assembly.Location;
+
+            using (var executionProxy = Create<ExecutionProxy>())
+                executionProxy.LoadFrom(listenerFactoryAssemblyFullPath);
+        }
+
+        public AssemblyResult RunAssembly<TListenerFactory>(Options options, params object[] factoryArgs) where TListenerFactory : IListenerFactory
+        {
+            RemoteAssemblyResolver assemblyResolver = (RemoteAssemblyResolver)this.appDomain.CreateInstanceFromAndUnwrap(typeof(RemoteAssemblyResolver).Assembly.CodeBase, typeof(RemoteAssemblyResolver).FullName);
+//            string directoryName1 = Path.GetDirectoryName(assemblyFullPath);
+//            assemblyResolver.AddDirectory(directoryName1);
+            string directoryName2 = Path.GetDirectoryName(new Uri(this.GetType().Assembly.CodeBase).LocalPath);
+            assemblyResolver.AddDirectory(directoryName2);
+
+            AssertSafeForAppDomainCommunication(factoryArgs);
 
             var listenerFactoryAssemblyFullPath = typeof(TListenerFactory).Assembly.Location;
             var listenerFactoryType = typeof(TListenerFactory).FullName;
 
             using (var executionProxy = Create<ExecutionProxy>())
-                return executionProxy.RunAssembly(assemblyFullPath, listenerFactoryAssemblyFullPath, listenerFactoryType, options, executionSink);
+            {
+                Console.WriteLine("Object is about to cross the boundary...");
+                return executionProxy.RunAssembly(assemblyFullPath, listenerFactoryAssemblyFullPath, listenerFactoryType, options, factoryArgs);
+            }
         }
 
-        public AssemblyResult RunMethods<TListenerFactory>(Options options, IExecutionSink executionSink, MethodGroup[] methodGroups) where TListenerFactory : IListenerFactory
+        public AssemblyResult RunMethods<TListenerFactory>(Options options, MethodGroup[] methodGroups, params object[] factoryArgs) where TListenerFactory : IListenerFactory
         {
-            AssertIsLongLivedMarshalByRefObject(executionSink);
+            AssertSafeForAppDomainCommunication(factoryArgs);
 
             var listenerFactoryAssemblyFullPath = typeof(TListenerFactory).Assembly.Location;
             var listenerFactoryType = typeof(TListenerFactory).FullName;
 
             using (var executionProxy = Create<ExecutionProxy>())
-                return executionProxy.RunMethods(assemblyFullPath, listenerFactoryAssemblyFullPath, listenerFactoryType, options, executionSink, methodGroups);
+                return executionProxy.RunMethods(assemblyFullPath, listenerFactoryAssemblyFullPath, listenerFactoryType, options, methodGroups, factoryArgs);
         }
 
-        static void AssertIsLongLivedMarshalByRefObject(object o)
+        static void AssertSafeForAppDomainCommunication(object[] factoryArgs)
         {
-            if (o == null) return;
-            if (o is LongLivedMarshalByRefObject) return;
-            var type = o.GetType();
-            var message = string.Format("Type '{0}' in Assembly '{1}' must inherit from '{2}'.",
-                                        type.FullName,
-                                        type.Assembly,
-                                        typeof(LongLivedMarshalByRefObject).FullName);
-            throw new Exception(message);
+            foreach (var o in factoryArgs)
+            {
+                if (o == null) continue;
+                if (o is LongLivedMarshalByRefObject) continue;
+                if (o.GetType().Has<SerializableAttribute>()) continue;
+
+                var type = o.GetType();
+                var message = string.Format("Type '{0}' in Assembly '{1}' must either be [Serialiable] or inherit from '{2}'.",
+                    type.FullName,
+                    type.Assembly,
+                    typeof(LongLivedMarshalByRefObject).FullName);
+                throw new Exception(message);
+            }
         }
 
         T Create<T>(params object[] args) where T : LongLivedMarshalByRefObject

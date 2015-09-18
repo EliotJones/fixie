@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.Remoting.Channels;
 using System.Text;
 using System.Xml.Linq;
 using Fixie.Execution;
@@ -8,6 +9,19 @@ using Fixie.Reports;
 
 namespace Fixie.ConsoleRunner
 {
+    public class ExecutionSink : LongLivedMarshalByRefObject, IExecutionSink
+    {
+        public void SendMessage(string message)
+        {
+            Console.WriteLine("SENDMESSAGE: " + message);
+        }
+
+        public void RecordResult(CaseResult caseResult)
+        {
+            Console.WriteLine("RECORDRESULT: "+caseResult.Name);
+        }
+    }
+
     class Program
     {
         const int FatalError = -1;
@@ -114,7 +128,15 @@ namespace Fixie.ConsoleRunner
         {
             using (var environment = new ExecutionEnvironment(assemblyPath))
             {
-                return environment.RunAssembly<ListenerFactory>(options, null);
+                Console.WriteLine("About to run an assembly: " + assemblyPath);
+                using (var executionSink = new ExecutionSink())
+                {
+                    Console.WriteLine("In the original AppDomain, the arg is known as a " + executionSink.GetType());
+                    environment.LoadAssemblyContaining<ListenerFactory>();//even with fancy assembly resolving event, this still needed to happen to resolve chicken/egg problem.
+                    return environment.RunAssembly<ListenerFactory>(options, executionSink);//this only works in Fixie.Tests because that legit refrences this assembly.  it doesn't work for Fixie.Smaples which doesnt' reference this, so the type isn't known on both sides even though the interface type is known on both sides.  casting to interface here doesn't work, of course.  moving concretion to main assembly DOES though, which at least confirms the problem.
+                    //Is part of the problem that this assembly right here *would* be loaded shortly (for teh ListenerFactory), but by tehn it's already
+                    //too late?
+                }
             }
         }
     }

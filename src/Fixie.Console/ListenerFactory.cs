@@ -6,7 +6,12 @@ namespace Fixie.ConsoleRunner
 {
     public class ListenerFactory : IListenerFactory
     {
-        public Listener Create(Options options, IExecutionSink executionSink)
+        public ListenerFactory(IExecutionSink executionSink)
+        {
+            executionSink.SendMessage("MESSAGE FROM CHILD DOMAIN");
+        }
+
+        public Listener Create(Options options)
         {
             if (ShouldUseTeamCityListener(options))
                 return new TeamCityListener();

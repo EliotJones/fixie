@@ -14,9 +14,11 @@ namespace Fixie.Internal
             return new Discoverer(options).DiscoverTestMethodGroups(assembly);
         }
 
-        public AssemblyResult RunAssembly(string assemblyFullPath, string listenerFactoryAssemblyFullPath, string listenerFactoryType, Options options, IExecutionSink executionSink)
+        public AssemblyResult RunAssembly(string assemblyFullPath, string listenerFactoryAssemblyFullPath, string listenerFactoryType, Options options, params object[] factoryArgs)
         {
-            var listener = CreateListener(listenerFactoryAssemblyFullPath, listenerFactoryType, options, executionSink);
+            Console.WriteLine("Object has crossed the boundary.");
+
+            var listener = CreateListener(listenerFactoryAssemblyFullPath, listenerFactoryType, options, factoryArgs);
 
             var runner = new Runner(listener, options);
 
@@ -25,9 +27,9 @@ namespace Fixie.Internal
             return runner.RunAssembly(assembly);
         }
 
-        public AssemblyResult RunMethods(string assemblyFullPath, string listenerFactoryAssemblyFullPath, string listenerFactoryType, Options options, IExecutionSink executionSink, MethodGroup[] methodGroups)
+        public AssemblyResult RunMethods(string assemblyFullPath, string listenerFactoryAssemblyFullPath, string listenerFactoryType, Options options, MethodGroup[] methodGroups, params object[] factoryArgs)
         {
-            var listener = CreateListener(listenerFactoryAssemblyFullPath, listenerFactoryType, options, executionSink);
+            var listener = CreateListener(listenerFactoryAssemblyFullPath, listenerFactoryType, options, factoryArgs);
 
             var runner = new Runner(listener, options);
 
@@ -36,16 +38,38 @@ namespace Fixie.Internal
             return runner.RunMethods(assembly, methodGroups);
         }
 
-        static Listener CreateListener(string listenerFactoryAssemblyFullPath, string listenerFactoryType, Options options, IExecutionSink executionSink)
+        public void LoadFrom(string assemblyFullPath)
         {
-            var type = Assembly.LoadFrom(listenerFactoryAssemblyFullPath).GetType(listenerFactoryType);
-
-            var factory = (IListenerFactory)Activator.CreateInstance(type);
-
-            return factory.Create(options, executionSink);
+            Console.WriteLine("Trying to preemptively load assembly at " + assemblyFullPath);
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                Console.WriteLine("\t\t" + assembly);
+            Assembly.LoadFile(assemblyFullPath);//tehre are many ways to load.  which one is right for reals?
+            Console.WriteLine("After trying to preemptively load assembly at " + assemblyFullPath);
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                Console.WriteLine("\t\t" + assembly);
         }
 
-        static Assembly LoadAssembly(string assemblyFullPath)
+        static Listener CreateListener(string listenerFactoryAssemblyFullPath, string listenerFactoryType, Options options, object[] factoryArgs)
+        {
+            Console.WriteLine("About to load the factory assembly at " + listenerFactoryAssemblyFullPath);
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                Console.WriteLine("\t\t" + assembly);
+            var type = Assembly.LoadFrom(listenerFactoryAssemblyFullPath).GetType(listenerFactoryType);
+            Console.WriteLine("Done getting the factory type from " + listenerFactoryAssemblyFullPath);
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+                Console.WriteLine("\t\t" + assembly);
+
+            foreach (var arg in factoryArgs)
+            {
+                Console.WriteLine("CHILD RECEIVED AS: " + arg.GetType());//*THIS* triggers a lookup with the new resolver!
+            }
+
+            var factory = (IListenerFactory)Activator.CreateInstance(type, factoryArgs);
+
+            return factory.Create(options);
+        }
+
+        public static Assembly LoadAssembly(string assemblyFullPath)
         {
             return Assembly.Load(AssemblyName.GetAssemblyName(assemblyFullPath));
         }

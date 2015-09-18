@@ -89,7 +89,7 @@ namespace Fixie.VisualStudio.TestAdapter
                         using (var executionSink = new ExecutionSink(frameworkHandle, assemblyPath))
                         using (var environment = new ExecutionEnvironment(assemblyPath))
                         {
-                            environment.RunMethods<ListenerFactory>(new Options(), executionSink, methodGroups);
+                            environment.RunMethods<ListenerFactory>(new Options(), methodGroups, executionSink);
                         }
                     }
                     else
