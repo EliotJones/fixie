@@ -41,11 +41,13 @@ namespace Fixie.Internal
             customCaseBehaviors = new List<Func<CaseBehavior>>();
             assertionLibraryTypes = new List<Type>();
             skipRules = new List<SkipRule>();
+            BindingFlags = BindingFlags.Public | BindingFlags.Instance;
         }
 
         public Action<Case[]> OrderCases { get; set; }
         public ConstructionFrequency ConstructionFrequency { get; set; }
         public Func<Type, object> TestClassFactory { get; set; }
+        public virtual BindingFlags BindingFlags { get; private set; }
 
         static object UseDefaultConstructor(Type type)
         {
@@ -124,13 +126,13 @@ namespace Fixie.Internal
             skipRules.Add(skipRule);
         }
 
-        public IReadOnlyList<Func<Type, bool>> TestClassConditions { get { return testClassConditions; } }
+        public virtual IReadOnlyList<Func<Type, bool>> TestClassConditions { get { return testClassConditions; } }
         public IReadOnlyList<Func<MethodInfo, bool>> TestMethodConditions { get { return testMethodConditions; } }
         public IReadOnlyList<Func<ParameterSource>> ParameterSources { get { return parameterSources; } }
         public IReadOnlyList<Func<ClassBehavior>> CustomClassBehaviors { get { return customClassBehaviors; } }
         public IReadOnlyList<Func<FixtureBehavior>> CustomFixtureBehaviors { get { return customFixtureBehaviors; } }
         public IReadOnlyList<Func<CaseBehavior>> CustomCaseBehaviors { get { return customCaseBehaviors; } }
         public IReadOnlyList<Type> AssertionLibraryTypes { get { return assertionLibraryTypes; } }
-        public IReadOnlyList<SkipRule> SkipRules { get { return skipRules; } }
+        public IReadOnlyList<SkipRule> SkipRules { get { return skipRules; } }     
     }
 }

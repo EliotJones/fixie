@@ -26,7 +26,7 @@ namespace Fixie
         /// The current state describing the convention. This state can be manipulated through
         /// the other properties on Convention.
         /// </summary>
-        public Configuration Config { get; private set; }
+        public Configuration Config { get; protected set; }
 
         /// <summary>
         /// Gets the custom Options set provided by the test runner at the start of execution.

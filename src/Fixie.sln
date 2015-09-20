@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 14
+VisualStudioVersion = 14.0.23107.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fixie", "Fixie\Fixie.csproj", "{474FF43B-4580-4032-999B-A717EB7A0CD3}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fixie.Tests", "Fixie.Tests\Fixie.Tests.csproj", "{EE3EC90F-EAFC-40CB-AEE7-400B6D30716D}"
@@ -19,6 +21,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fixie.VisualStudio.TestAdapter", "Fixie.VisualStudio.TestAdapter\Fixie.VisualStudio.TestAdapter.csproj", "{E2335E25-000C-4BCC-BB49-A2D2C3ED4A59}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fixie.Console.x86", "Fixie.Console\Fixie.Console.x86.csproj", "{1628BBDD-635B-4F08-9682-E9EB0F14033F}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "FSharp.TestLibrary", "FSharp.TestLibrary\FSharp.TestLibrary.fsproj", "{F2E93B1C-F2DA-4192-A755-48BBB9A1CB9E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Fixie.FSharp", "Fixie.FSharp\Fixie.FSharp.csproj", "{2E4D0AFE-0444-4A3E-A1AC-60E466DBF410}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -54,6 +60,14 @@ Global
 		{1628BBDD-635B-4F08-9682-E9EB0F14033F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1628BBDD-635B-4F08-9682-E9EB0F14033F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1628BBDD-635B-4F08-9682-E9EB0F14033F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2E93B1C-F2DA-4192-A755-48BBB9A1CB9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2E93B1C-F2DA-4192-A755-48BBB9A1CB9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2E93B1C-F2DA-4192-A755-48BBB9A1CB9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2E93B1C-F2DA-4192-A755-48BBB9A1CB9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E4D0AFE-0444-4A3E-A1AC-60E466DBF410}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E4D0AFE-0444-4A3E-A1AC-60E466DBF410}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E4D0AFE-0444-4A3E-A1AC-60E466DBF410}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E4D0AFE-0444-4A3E-A1AC-60E466DBF410}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
